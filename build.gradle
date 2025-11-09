@@ -29,7 +29,14 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // JDA
+    implementation('net.dv8tion:JDA:6.1.1') {
+        exclude group: 'club.minnced', module: 'opus-java'
+        exclude group: 'ch.qos.logback', module: 'logback-classic'
+    }
 }
 
 tasks.named('test') {
