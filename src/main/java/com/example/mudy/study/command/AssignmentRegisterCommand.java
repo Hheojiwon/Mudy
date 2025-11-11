@@ -1,6 +1,10 @@
 package com.example.mudy.study.command;
 
+import com.example.mudy.study.model.Assignment;
+import com.example.mudy.study.service.AssignmentService;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +17,12 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class AssignmentRegisterCommand extends ListenerAdapter {
 
+    private final AssignmentService assignmentService;
+
+    public AssignmentRegisterCommand(AssignmentService assignmentService) {
+        this.assignmentService = assignmentService;
+    }
+
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (!event.getName().equals("과제등록")) return;
@@ -21,7 +31,9 @@ public class AssignmentRegisterCommand extends ListenerAdapter {
         String deadline = event.getOption("deadline").getAsString();
         LocalDateTime deadlineTime = LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
-        Duration remainTime = Duration.between(LocalDateTime.now(), deadlineTime);
+        Assignment assignment = assignmentService.registerAssignment(event.getUser().getId(), title, deadlineTime);
+
+        Duration remainTime = Duration.between(LocalDateTime.now(), assignment.getDeadline());
         long days = remainTime.toDays();
         long hours = remainTime.minusDays(days).toHours();
         long minutes = remainTime.minusDays(days).minusHours(hours).toMinutes();
@@ -30,7 +42,7 @@ public class AssignmentRegisterCommand extends ListenerAdapter {
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("✅ 과제 등록 완료")
                 .setColor(0x57F287)
-                .addField("📝 과제명", title, false)
+                .addField("📝 과제명", assignment.getTitle(), false)
                 .addField("⌛ 남은 시간", remainTimeText, false);
         event.replyEmbeds(embed.build()).queue();
     }
