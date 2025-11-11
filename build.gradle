@@ -37,6 +37,8 @@ dependencies {
         exclude group: 'club.minnced', module: 'opus-java'
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
+
+    implementation 'dev.arbjerg:lavaplayer:x.y.z'
 }
 
 tasks.named('test') {
