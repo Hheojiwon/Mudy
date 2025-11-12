@@ -34,7 +34,7 @@ public class AssignmentListCommand extends ListenerAdapter {
         LocalDateTime now = LocalDateTime.now();
 
         for (Assignment assignment : userAssignments) {
-            if (Duration.between(now, assignment.getDeadline()).toSeconds() < 0) {
+            if (Duration.between(now, assignment.getDeadline()).toSeconds() < 0 && !assignment.isCompleted()) {
                 embed.addField(assignment.getTitle() + " : ⛔️만료", "- 과제를 완료하지 못했습니다.", false);
                 continue;
             }
