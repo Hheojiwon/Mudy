@@ -18,7 +18,9 @@ public enum MusicResponseMessage {
 
     MUSIC_NO_TRACK("현재 재생 중인 곡이 없습니다."),
     MUSIC_NO_MATCHES("검색 결과가 없습니다: %s"),
-    MUSIC_LOAD_FAILED("재생 실패: %s");
+    MUSIC_LOAD_FAILED("재생 실패: %s"),
+
+    MUSIC_STUDY_PLAYLIST_START("🎵 공부하기 좋은 조용한 음악을 재생합니다.");
 
     private final String message;
 
