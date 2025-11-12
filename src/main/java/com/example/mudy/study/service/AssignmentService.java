@@ -25,4 +25,8 @@ public class AssignmentService {
     public List<Assignment> getUserAssignments(String userId) {
         return assignmentRepository.findByUserId(userId);
     }
+
+    public void completeAssignment(String userId, String title) {
+        assignmentRepository.complete(userId, title);
+    }
 }

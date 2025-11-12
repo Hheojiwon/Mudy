@@ -17,7 +17,10 @@ public class StudyCommandRegistry implements CommandRegistry {
                         .addOption(OptionType.STRING, "title", "과제명", true)
                         .addOption(OptionType.STRING, "deadline", "마감일 (yyyy-MM-dd HH:mm)", true),
 
-                Commands.slash("과제목록", "스터디 과제 목록을 조회합니다.")
+                Commands.slash("과제목록", "스터디 과제 목록을 조회합니다."),
+
+                Commands.slash("과제완료", "과제를 완료처리합니다.")
+                        .addOption(OptionType.STRING, "title", "과제명", true)
         );
     }
 }

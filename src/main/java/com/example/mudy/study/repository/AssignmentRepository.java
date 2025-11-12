@@ -25,4 +25,10 @@ public class AssignmentRepository {
         }
         return assignments;
     }
+
+    public void complete(String userId, String title) {
+        assignments.forEach(assignment -> {
+            if (assignment.getUserId().equals(userId) && assignment.getTitle().equals(title)) { assignment.setCompleted(); }
+        });
+    }
 }

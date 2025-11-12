@@ -3,8 +3,6 @@ package com.example.mudy.study.command;
 import com.example.mudy.study.model.Assignment;
 import com.example.mudy.study.repository.AssignmentRepository;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.components.actionrow.ActionRow;
-import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +31,9 @@ public class AssignmentListCommand extends ListenerAdapter {
                 .setTitle("📋 과제 목록")
                 .setColor(0x57F287);
         for (Assignment assignment : userAssignments) {
-            embed.addField(assignment.getTitle(), "- " + assignment.getDeadline().toString() + "까지", false);
+            String state = " : 🔄진행중";
+            if (assignment.isCompleted()) { state = " : ✅완료"; }
+            embed.addField(assignment.getTitle() + state, "- " + assignment.getDeadline().toString() + "까지", false);
         }
 
         event.replyEmbeds(embed.build()).queue();
