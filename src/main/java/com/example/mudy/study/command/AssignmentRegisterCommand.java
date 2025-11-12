@@ -29,7 +29,7 @@ public class AssignmentRegisterCommand extends ListenerAdapter {
         String deadline = event.getOption("deadline").getAsString();
         LocalDateTime deadlineTime = LocalDateTime.parse(deadline, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
-        Assignment assignment = assignmentService.registerAssignment(event.getUser().getId(), title, deadlineTime);
+        Assignment assignment = assignmentService.registerAssignment(event.getUser().getId(), title, deadlineTime, event.getUser().getGlobalName(), event.getChannel().asTextChannel());
 
         Duration remainTime = Duration.between(LocalDateTime.now(), assignment.getDeadline());
         long days = remainTime.toDays();

@@ -2,6 +2,7 @@ package com.example.mudy.study.service;
 
 import com.example.mudy.study.model.Assignment;
 import com.example.mudy.study.repository.AssignmentRepository;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,8 +17,8 @@ public class AssignmentService {
         this.assignmentRepository = assignmentRepository;
     }
 
-    public Assignment registerAssignment(String userId, String title, LocalDateTime deadline) {
-        Assignment assignment = new Assignment(userId, title, deadline);
+    public Assignment registerAssignment(String userId, String title, LocalDateTime deadline, String userName, TextChannel channel) {
+        Assignment assignment = new Assignment(userId, title, deadline, userName, channel);
         assignmentRepository.save(assignment);
         return assignment;
     }
