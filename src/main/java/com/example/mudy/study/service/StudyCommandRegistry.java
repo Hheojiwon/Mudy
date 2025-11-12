@@ -20,6 +20,9 @@ public class StudyCommandRegistry implements CommandRegistry {
                 Commands.slash("과제목록", "스터디 과제 목록을 조회합니다."),
 
                 Commands.slash("과제완료", "과제를 완료처리합니다.")
+                        .addOption(OptionType.STRING, "title", "과제명", true),
+
+                Commands.slash("과제삭제", "등록한 과제를 삭제합니다.")
                         .addOption(OptionType.STRING, "title", "과제명", true)
         );
     }

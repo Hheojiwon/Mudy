@@ -7,20 +7,20 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AssignmentCompleteCommand extends ListenerAdapter {
+public class AssignmentDeleteCommand extends ListenerAdapter {
 
-    private final AssignmentService assignmentService;
+    private AssignmentService assignmentService;
 
-    public AssignmentCompleteCommand(AssignmentService assignmentService) {
+    public AssignmentDeleteCommand(AssignmentService assignmentService) {
         this.assignmentService = assignmentService;
     }
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (!event.getName().equals("과제완료")) { return; }
+           if (!event.getName().equals("과제삭제")) { return; }
 
-        assignmentService.completeAssignment(event.getUser().getId(), event.getOption("title").getAsString());
+           assignmentService.deleteAssignment(event.getUser().getId(), event.getOption("title").getAsString());
 
-        event.reply("✅ 과제를 완료하였습니다.").queue();
+           event.reply("⛔️삭제를 완료하였습니다.").queue();
     }
 }

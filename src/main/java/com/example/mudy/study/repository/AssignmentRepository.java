@@ -31,4 +31,10 @@ public class AssignmentRepository {
             if (assignment.getUserId().equals(userId) && assignment.getTitle().equals(title)) { assignment.setCompleted(); }
         });
     }
+
+    public void delete(String userId, String title) {
+        assignments.removeIf(assignment ->
+                assignment.getUserId().equals(userId) && assignment.getTitle().equals(title)
+        );
+    }
 }

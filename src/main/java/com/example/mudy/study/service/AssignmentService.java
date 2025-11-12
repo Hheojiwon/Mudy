@@ -29,4 +29,8 @@ public class AssignmentService {
     public void completeAssignment(String userId, String title) {
         assignmentRepository.complete(userId, title);
     }
+
+    public void deleteAssignment(String userId, String title) {
+        assignmentRepository.delete(userId, title);
+    }
 }
