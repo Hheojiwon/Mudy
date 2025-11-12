@@ -18,26 +18,45 @@ public class AssignmentReminderService {
         this.assignmentRepository = assignmentRepository;
     }
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRate = 1000)
     public void checkEachDeadlines() {
-        List<Assignment> allAssignments = assignmentRepository.getAssignments();
+        List<Assignment> assignments = assignmentRepository.getAssignments();
 
         LocalDateTime now = LocalDateTime.now();
 
-        allAssignments.stream()
+        assignments.stream()
                 .filter(a -> !a.isCompleted())
                 .filter(a -> {
-                    long minutesLeft = Duration.between(now, a.getDeadline()).toMinutes();
-                    return minutesLeft <= 60 && minutesLeft > 59;
+                    long secondsLeft = Duration.between(now, a.getDeadline()).toSeconds();
+                    return secondsLeft == 3600;
                 })
-                .forEach(this::notifyUser);
+                .forEach(this::notifyHourLeft);
+
+        assignments.stream()
+                .filter(a -> !a.isCompleted())
+                .filter(a -> {
+                    long secondsLeft = Duration.between(now, a.getDeadline()).toSeconds();
+                    return secondsLeft == 0;
+                })
+                .forEach(this::notifyOver);
     }
 
-    public void notifyUser(Assignment assignment) {
+    public void notifyHourLeft(Assignment assignment) {
         EmbedBuilder embed = new EmbedBuilder();
 
         embed.setTitle("⏰ **과제 마감 1시간 전** ⏰")
+                .setColor(0xFF0000)
                 .addField(assignment.getUserName() + "님 과제를 완료해주세요.", "- " + assignment.getTitle(), true);
+
+        assignment.getChannel().sendMessageEmbeds(embed.build()).queue();
+    }
+
+    public void notifyOver(Assignment assignment) {
+        EmbedBuilder embed = new EmbedBuilder();
+
+        embed.setTitle("🚨 **과제가 마감되었습니다** 🚨")
+                .setColor(0xFF0000)
+                .addField(assignment.getUserName() + "님이 기한 안에 과제를 완료 못하셨습니다.", "- " + assignment.getTitle(), true);
 
         assignment.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
