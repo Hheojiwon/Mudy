@@ -22,6 +22,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
@@ -29,7 +30,6 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // JDA
@@ -37,6 +37,9 @@ dependencies {
         exclude group: 'club.minnced', module: 'opus-java'
         exclude group: 'ch.qos.logback', module: 'logback-classic'
     }
+
+    // LavaPlayer Fork (YouTube 최신 지원)
+    implementation 'com.github.walkyst:lavaplayer-fork:1.4.3'
 }
 
 tasks.named('test') {
