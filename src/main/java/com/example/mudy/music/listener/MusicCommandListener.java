@@ -1,4 +1,5 @@
 package com.example.mudy.music.listener;
+
 import com.example.mudy.music.command.MusicCommand;
 import com.example.mudy.music.constants.MusicResponseMessage;
 import com.example.mudy.music.service.MusicService;
@@ -23,9 +24,14 @@ public class MusicCommandListener extends ListenerAdapter {
 
         if (event.getName().equals(MusicCommand.PLAY.getName())) {
             handlePlay(event);
-        }
-        else if (event.getName().equals(MusicCommand.STOP.getName())) {
+        } else if (event.getName().equals(MusicCommand.STOP.getName())) {
             handleStop(event);
+        } else if (event.getName().equals(MusicCommand.PAUSE.getName())) {
+            handlePause(event);
+        } else if (event.getName().equals(MusicCommand.RESUME.getName())) {
+            handleResume(event);
+        } else if (event.getName().equals(MusicCommand.SKIP.getName())) {
+            handleSkip(event);
         }
     }
 
@@ -54,5 +60,33 @@ public class MusicCommandListener extends ListenerAdapter {
         }
         musicService.stop(event.getGuild());
         event.reply(MusicResponseMessage.MUSIC_STOP.get()).queue();
+    }
+
+    private void handlePause(SlashCommandInteractionEvent event) {
+        String validationError = musicService.validateVoiceState(event.getMember());
+        if (validationError != null) {
+            event.reply(validationError).setEphemeral(true).queue();
+        }
+        musicService.pause(event.getGuild());
+        event.reply(MusicResponseMessage.MUSIC_PAUSE.get()).queue();
+    }
+
+    private void handleResume(SlashCommandInteractionEvent event) {
+        String validationError = musicService.validateVoiceState(event.getMember());
+        if (validationError != null) {
+            event.reply(validationError).setEphemeral(true).queue();
+        }
+        musicService.resume(event.getGuild());
+        event.reply(MusicResponseMessage.MUSIC_RESUME.get()).queue();
+    }
+
+    private void handleSkip(SlashCommandInteractionEvent event) {
+        String validationError = musicService.validateVoiceState(event.getMember());
+        if (validationError != null) {
+            event.reply(validationError).setEphemeral(true).queue();
+            return;
+        }
+        musicService.skipTrack(event.getGuild());
+        event.reply(MusicResponseMessage.MUSIC_SKIP.get()).queue();
     }
 }
