@@ -4,6 +4,7 @@ import com.example.mudy.music.constants.MusicConstants;
 import com.example.mudy.music.constants.MusicResponseMessage;
 import com.example.mudy.music.manager.GuildMusicManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -100,5 +101,20 @@ public class MusicService {
         musicManager.getAudioPlayer().stopTrack();
         AudioManager audioManager = guild.getAudioManager();
         audioManager.closeAudioConnection();
+    }
+
+    public void pause(Guild guild){
+        GuildMusicManager musicManager = getGuildAudioPlayer(guild);
+        musicManager.getAudioPlayer().setPaused(true);
+    }
+
+    public void resume(Guild guild){
+        GuildMusicManager musicManager = getGuildAudioPlayer(guild);
+        musicManager.getAudioPlayer().setPaused(false);
+    }
+
+    public void skipTrack(Guild guild) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(guild);
+        musicManager.getScheduler().nextTrack();
     }
 }

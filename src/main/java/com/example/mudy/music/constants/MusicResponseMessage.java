@@ -11,7 +11,7 @@ public enum MusicResponseMessage {
 
     MUSIC_STOP("⏹️ 재생을 정지했습니다."),
     MUSIC_SKIP("⏭️ 다음 곡으로 넘어갑니다."),
-    MUSIC_PAUSE_TOGGLE("⏸️ 음악을 일시정지합니다."),
+    MUSIC_PAUSE("⏸️ 음악을 일시정지합니다."),
     MUSIC_RESUME("⏸️ 음악을 다시 재생합니다."),
 
     MUSIC_VOLUME_SET("🔊 볼륨: %d%%"),
