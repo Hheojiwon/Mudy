@@ -1,5 +1,6 @@
-package com.example.mudy.study.command;
+package com.example.mudy.study.command.assignment;
 
+import com.example.mudy.study.command.StudyCommand;
 import com.example.mudy.study.service.AssignmentService;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -17,7 +18,7 @@ public class AssignmentDeleteCommand extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-           if (!event.getName().equals("과제삭제")) { return; }
+           if (!event.getName().equals(StudyCommand.DELETE.getName())) { return; }
 
            assignmentService.deleteAssignment(event.getUser().getId(), event.getOption("title").getAsString());
 

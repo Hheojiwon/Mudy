@@ -1,5 +1,6 @@
-package com.example.mudy.study.command;
+package com.example.mudy.study.command.assignment;
 
+import com.example.mudy.study.command.StudyCommand;
 import com.example.mudy.study.model.Assignment;
 import com.example.mudy.study.service.AssignmentService;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -20,7 +21,7 @@ public class AssignmentCompleteRateCommand extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction (@NotNull SlashCommandInteractionEvent event) {
-        if (!event.getName().equals("과제완료율")) return;
+        if (!event.getName().equals(StudyCommand.COMPLETE_RATE.getName())) return;
 
         List<Assignment> userAssignments =  assignmentService.getUserAssignments(event.getUser().getId());
 

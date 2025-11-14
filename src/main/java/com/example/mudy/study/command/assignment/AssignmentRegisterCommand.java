@@ -1,5 +1,6 @@
-package com.example.mudy.study.command;
+package com.example.mudy.study.command.assignment;
 
+import com.example.mudy.study.command.StudyCommand;
 import com.example.mudy.study.model.Assignment;
 import com.example.mudy.study.service.AssignmentService;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,7 +24,7 @@ public class AssignmentRegisterCommand extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
-        if (!event.getName().equals("과제등록")) return;
+        if (!event.getName().equals(StudyCommand.REGISTER.getName())) return;
 
         String title = event.getOption("title").getAsString();
         String deadline = event.getOption("deadline").getAsString();
