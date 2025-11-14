@@ -4,88 +4,82 @@ import com.example.mudy.music.command.MusicCommand;
 import com.example.mudy.music.constants.MusicResponseMessage;
 import com.example.mudy.music.service.MusicService;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+import java.util.function.Consumer;
+
 @Component
 public class MusicCommandListener extends ListenerAdapter {
 
     private final MusicService musicService;
+    private final Map<String, Consumer<SlashCommandInteractionEvent>> commandHandlers;
 
     public MusicCommandListener(MusicService musicService) {
         this.musicService = musicService;
+        this.commandHandlers = initCommandHandlers();
+    }
+
+    private Map<String, Consumer<SlashCommandInteractionEvent>> initCommandHandlers() {
+        return Map.of(
+                MusicCommand.PLAY.getName(), this::handlePlay,
+                MusicCommand.STOP.getName(), this::handleStop,
+                MusicCommand.PAUSE.getName(), this::handlePause,
+                MusicCommand.RESUME.getName(), this::handleResume,
+                MusicCommand.SKIP.getName(), this::handleSkip
+        );
     }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-
-        if (event.getName().equals(MusicCommand.PLAY.getName())) {
-            handlePlay(event);
-        } else if (event.getName().equals(MusicCommand.STOP.getName())) {
-            handleStop(event);
-        } else if (event.getName().equals(MusicCommand.PAUSE.getName())) {
-            handlePause(event);
-        } else if (event.getName().equals(MusicCommand.RESUME.getName())) {
-            handleResume(event);
-        } else if (event.getName().equals(MusicCommand.SKIP.getName())) {
-            handleSkip(event);
+        Consumer<SlashCommandInteractionEvent> handler = commandHandlers.get(event.getName());
+        if (handler != null) {
+            handler.accept(event);
         }
     }
 
-    private void handlePlay(SlashCommandInteractionEvent event) {
-        Member member = event.getMember();
-
-        String validationError = musicService.validateVoiceState(member);
+    private boolean validateAndReply(SlashCommandInteractionEvent event) {
+        String validationError = musicService.validateVoiceState(event.getMember());
         if (validationError != null) {
             event.reply(validationError).setEphemeral(true).queue();
-            return;
+            return false;
         }
+        return true;
+    }
 
-        GuildVoiceState voiceState = member.getVoiceState();
+    private void handlePlay(SlashCommandInteractionEvent event) {
+        if (!validateAndReply(event)) return;
+
+        GuildVoiceState voiceState = event.getMember().getVoiceState();
         VoiceChannel voiceChannel = voiceState.getChannel().asVoiceChannel();
 
         musicService.playStudyPlaylist(event.getGuild(), voiceChannel);
-
         event.reply(MusicResponseMessage.MUSIC_STUDY_PLAYLIST_START.get()).queue();
     }
 
     private void handleStop(SlashCommandInteractionEvent event) {
-        String validationError = musicService.validateVoiceState(event.getMember());
-        if (validationError != null) {
-            event.reply(validationError).setEphemeral(true).queue();
-            return;
-        }
+        if (!validateAndReply(event)) return;
         musicService.stop(event.getGuild());
         event.reply(MusicResponseMessage.MUSIC_STOP.get()).queue();
     }
 
     private void handlePause(SlashCommandInteractionEvent event) {
-        String validationError = musicService.validateVoiceState(event.getMember());
-        if (validationError != null) {
-            event.reply(validationError).setEphemeral(true).queue();
-        }
+        if (!validateAndReply(event)) return;
         musicService.pause(event.getGuild());
         event.reply(MusicResponseMessage.MUSIC_PAUSE.get()).queue();
     }
 
     private void handleResume(SlashCommandInteractionEvent event) {
-        String validationError = musicService.validateVoiceState(event.getMember());
-        if (validationError != null) {
-            event.reply(validationError).setEphemeral(true).queue();
-        }
+        if (!validateAndReply(event)) return;
         musicService.resume(event.getGuild());
         event.reply(MusicResponseMessage.MUSIC_RESUME.get()).queue();
     }
 
     private void handleSkip(SlashCommandInteractionEvent event) {
-        String validationError = musicService.validateVoiceState(event.getMember());
-        if (validationError != null) {
-            event.reply(validationError).setEphemeral(true).queue();
-            return;
-        }
+        if (!validateAndReply(event)) return;
         musicService.skipTrack(event.getGuild());
         event.reply(MusicResponseMessage.MUSIC_SKIP.get()).queue();
     }
