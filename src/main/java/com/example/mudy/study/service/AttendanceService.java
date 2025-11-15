@@ -1,5 +1,6 @@
 package com.example.mudy.study.service;
 
+import com.example.mudy.study.model.Attendance;
 import com.example.mudy.study.repository.AttendanceRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ public class AttendanceService {
         attendanceRepository.start(LocalDateTime.now(), userId);
     }
 
-    public void endAttendance(String userId) {
-        attendanceRepository.end(LocalDateTime.now(), userId);
+    public Attendance endAttendance(String userId) {
+        return attendanceRepository.end(LocalDateTime.now(), userId);
     }
 }

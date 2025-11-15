@@ -17,7 +17,8 @@ public enum StudyCommand {
     DELETE("과제삭제", "등록한 과제를 삭제합니다.",
             new OptionData(OptionType.STRING, "title", "과제명", true)),
     COMPLETE_RATE("과제완료율", "유저의 과제 완료율을 확인합니다."),
-    ATTEND("스터디출석", "스터디에 출석합니다.");
+    ATTEND("스터디출석", "스터디에 출석합니다."),
+    END("스터디종료", "스터디를 종료합니다.");
 
     private final CommandData commandData;
 

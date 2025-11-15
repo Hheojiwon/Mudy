@@ -17,11 +17,16 @@ public class AttendanceRepository {
         attendances.add(new Attendance(startTime, userId));
     }
 
-    public void end(LocalDateTime endTime, String userId) {
+    public Attendance end(LocalDateTime endTime, String userId) {
+        Attendance attendance = null;
+
         for (Attendance a : attendances) {
-            if (a.getUserId().equals(userId)) {
+            if (a.getUserId().equals(userId) && !a.getStartTime().equals(endTime)) {
                 a.end(endTime);
+                attendance = a;
             }
         }
+
+        return attendance;
     }
 }
