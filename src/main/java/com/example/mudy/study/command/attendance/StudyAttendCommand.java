@@ -20,7 +20,7 @@ public class StudyAttendCommand extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event){
         if (!event.getName().equals(StudyCommand.ATTEND.getName())) return;
 
-        attendanceService.startAttendance(event.getUser().getId());
+        attendanceService.startAttendance(event.getUser().getId(), event.getUser().getGlobalName());
 
         event.reply("✅ " + event.getUser().getGlobalName() + "님이 출석하였습니다.").queue();
     }
