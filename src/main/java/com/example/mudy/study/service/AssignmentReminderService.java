@@ -20,7 +20,7 @@ public class AssignmentReminderService {
 
     @Scheduled(fixedRate = 1000)
     public void checkEachDeadlines() {
-        List<Assignment> assignments = assignmentRepository.getAssignments();
+        List<Assignment> assignments = assignmentRepository.findAll();
 
         LocalDateTime now = LocalDateTime.now();
 
