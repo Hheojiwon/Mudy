@@ -3,8 +3,9 @@ package com.example.mudy.music.service;
 import com.example.mudy.music.constants.MusicConstants;
 import com.example.mudy.music.constants.MusicResponseMessage;
 import com.example.mudy.music.manager.GuildMusicManager;
+import com.example.mudy.music.model.FavoriteTrack;
+import com.example.mudy.music.repository.UserPlaylistRepository;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -29,8 +31,10 @@ public class MusicService {
 
     private final DefaultAudioPlayerManager playerManager;
     private final Map<Long, GuildMusicManager> musicManagers;
+    private final UserPlaylistRepository userPlaylistRepository;
 
-    public MusicService() {
+    public MusicService(UserPlaylistRepository userPlaylistRepository) {
+        this.userPlaylistRepository = userPlaylistRepository;
         this.playerManager = new DefaultAudioPlayerManager();
         this.musicManagers = new HashMap<>();
 
@@ -143,5 +147,45 @@ public class MusicService {
                 .addField(MusicResponseMessage.MUSIC_NOW_PLAYING_ARTIST.get(), track.getInfo().author, true)
                 .addField(MusicResponseMessage.MUSIC_NOW_PLAYING_DURATION.get(), formatDuration(track.getDuration()), true)
                 .build();
+    }
+
+    public String addToFavorite(Guild guild, String userId) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(guild);
+        AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
+
+        if (track == null) return MusicResponseMessage.MUSIC_NO_TRACK.get();
+
+        FavoriteTrack favoriteTrack = new FavoriteTrack(
+                track.getInfo().title,
+                track.getInfo().author,
+                track.getInfo().uri,
+                track.getDuration()
+        );
+
+        userPlaylistRepository.addTrack(userId, favoriteTrack);
+
+        return MusicResponseMessage.MUSIC_FAVORITE_ADDED.format(track.getInfo().title);
+    }
+
+    public MessageEmbed getFavoriteList(String userId, String userName) {
+        List<FavoriteTrack> tracks = userPlaylistRepository.getTracks(userId);
+        if (tracks.isEmpty()) {
+            return new EmbedBuilder().setColor(Color.RED)
+                    .setDescription(MusicResponseMessage.MUSIC_FAVORITE_EMPTY.get()).build();
+        }
+
+        EmbedBuilder embed = new EmbedBuilder()
+                .setColor(Color.YELLOW)
+                .setTitle(MusicResponseMessage.MUSIC_FAVORITE_LIST_TITLE.format(userName));
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < tracks.size(); i++) {
+            FavoriteTrack track = tracks.get(i);
+            sb.append("**").append(i + 1).append(".** ")
+                    .append("[").append(track.getTitle()).append("](").append(track.getUrl()).append(") ")
+                    .append("(`").append(formatDuration(track.getLength())).append("`)\n");
+        }
+        embed.setDescription(sb.toString());
+        return embed.build();
     }
 }

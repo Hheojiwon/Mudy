@@ -31,7 +31,9 @@ public class MusicCommandListener extends ListenerAdapter {
                 MusicCommand.PAUSE.getName(), this::handlePause,
                 MusicCommand.RESUME.getName(), this::handleResume,
                 MusicCommand.SKIP.getName(), this::handleSkip,
-                MusicCommand.NOW_PLAYING.getName(), this::handleNowPlaying
+                MusicCommand.NOW_PLAYING.getName(), this::handleNowPlaying,
+                MusicCommand.FAVORITE_ADD.getName(), this::handleFavoriteAdd,
+                MusicCommand.FAVORITE_LIST.getName(), this::handleFavoriteList
         );
     }
 
@@ -93,5 +95,17 @@ public class MusicCommandListener extends ListenerAdapter {
         } else {
             event.replyEmbeds(embed).queue();
         }
+    }
+
+    private void handleFavoriteAdd(SlashCommandInteractionEvent event) {
+        if (!validateAndReply(event)) return;
+        String result = musicService.addToFavorite(event.getGuild(), event.getUser().getId());
+        event.reply(result).setEphemeral(true).queue();
+    }
+
+    private void handleFavoriteList(SlashCommandInteractionEvent event) {
+        String userName = event.getMember().getEffectiveName();
+        MessageEmbed embed = musicService.getFavoriteList(event.getUser().getId(), userName);
+        event.replyEmbeds(embed).queue();
     }
 }
