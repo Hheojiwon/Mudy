@@ -188,4 +188,14 @@ public class MusicService {
         embed.setDescription(sb.toString());
         return embed.build();
     }
+
+    public String removeFromFavorite(String userId, int index) {
+        boolean removed = userPlaylistRepository.removeTrack(userId, index - 1);
+
+        if (removed) {
+            return MusicResponseMessage.MUSIC_FAVORITE_REMOVED.format(index);
+        } else {
+            return MusicResponseMessage.MUSIC_FAVORITE_INVALID_INDEX.get();
+        }
+    }
 }

@@ -33,7 +33,8 @@ public class MusicCommandListener extends ListenerAdapter {
                 MusicCommand.SKIP.getName(), this::handleSkip,
                 MusicCommand.NOW_PLAYING.getName(), this::handleNowPlaying,
                 MusicCommand.FAVORITE_ADD.getName(), this::handleFavoriteAdd,
-                MusicCommand.FAVORITE_LIST.getName(), this::handleFavoriteList
+                MusicCommand.FAVORITE_LIST.getName(), this::handleFavoriteList,
+                MusicCommand.FAVORITE_REMOVE.getName(), this::handleFavoriteRemove
         );
     }
 
@@ -107,5 +108,11 @@ public class MusicCommandListener extends ListenerAdapter {
         String userName = event.getMember().getEffectiveName();
         MessageEmbed embed = musicService.getFavoriteList(event.getUser().getId(), userName);
         event.replyEmbeds(embed).queue();
+    }
+
+    private void handleFavoriteRemove(SlashCommandInteractionEvent event) {
+        int number = event.getOption("number").getAsInt();
+        String result = musicService.removeFromFavorite(event.getUser().getId(), number);
+        event.reply(result).setEphemeral(true).queue();
     }
 }
