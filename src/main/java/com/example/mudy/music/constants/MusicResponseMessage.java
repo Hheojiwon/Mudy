@@ -21,7 +21,17 @@ public enum MusicResponseMessage {
     MUSIC_NO_MATCHES("검색 결과가 없습니다: %s"),
     MUSIC_LOAD_FAILED("재생 실패: %s"),
 
-    MUSIC_STUDY_PLAYLIST_START("🎵 공부하기 좋은 조용한 음악을 재생합니다.");
+    MUSIC_STUDY_PLAYLIST_START("🎵 공부하기 좋은 조용한 음악을 재생합니다."),
+
+    MUSIC_NOW_PLAYING_TITLE("🎵 현재 재생 중"),
+    MUSIC_NOW_PLAYING_ARTIST("🎤 아티스트"),
+    MUSIC_NOW_PLAYING_DURATION("⏳ 재생 시간"),
+
+    MUSIC_FAVORITE_ADDED("✅ **%s** 곡이 즐겨찾기에 추가되었습니다!"),
+    MUSIC_FAVORITE_EMPTY("❌ 즐겨찾기 목록이 비어있습니다."),
+    MUSIC_FAVORITE_LIST_TITLE("⭐ %s님의 즐겨찾기"),
+    MUSIC_FAVORITE_REMOVED("🗑️ %d번 곡을 삭제했습니다."),
+    MUSIC_FAVORITE_INVALID_INDEX("❌ 잘못된 번호입니다. 목록을 다시 확인해주세요.");
 
     private final String message;
 
