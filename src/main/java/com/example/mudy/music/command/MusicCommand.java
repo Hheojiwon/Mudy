@@ -28,9 +28,6 @@ public enum MusicCommand {
     FAVORITE_REMOVE("즐겨찾기삭제", "내 즐겨찾기에서 곡을 삭제합니다.",
             new OptionData(OptionType.INTEGER, "number", "삭제할 곡 번호 (목록 명령어로 확인)", true));
 
-
-
-
     private final CommandData commandData;
 
     MusicCommand(String name, String description) {
