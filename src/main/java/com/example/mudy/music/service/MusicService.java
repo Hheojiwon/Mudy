@@ -10,15 +10,19 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class MusicService {
@@ -50,7 +54,7 @@ public class MusicService {
 
     public String validateVoiceState(Member member) {
         if (member == null) {
-            return  MusicResponseMessage.ERROR_SERVER_ONLY.get();
+            return MusicResponseMessage.ERROR_SERVER_ONLY.get();
         }
 
         GuildVoiceState voiceState = member.getVoiceState();
@@ -103,12 +107,12 @@ public class MusicService {
         audioManager.closeAudioConnection();
     }
 
-    public void pause(Guild guild){
+    public void pause(Guild guild) {
         GuildMusicManager musicManager = getGuildAudioPlayer(guild);
         musicManager.getAudioPlayer().setPaused(true);
     }
 
-    public void resume(Guild guild){
+    public void resume(Guild guild) {
         GuildMusicManager musicManager = getGuildAudioPlayer(guild);
         musicManager.getAudioPlayer().setPaused(false);
     }
@@ -116,5 +120,28 @@ public class MusicService {
     public void skipTrack(Guild guild) {
         GuildMusicManager musicManager = getGuildAudioPlayer(guild);
         musicManager.getScheduler().nextTrack();
+    }
+
+    private String formatDuration(long millis) {
+        return String.format("%02d:%02d",
+                TimeUnit.MILLISECONDS.toMinutes(millis),
+                TimeUnit.MILLISECONDS.toSeconds(millis) % 60);
+    }
+
+    public MessageEmbed getNowPlaying(Guild guild) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(guild);
+        AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
+
+        if (track == null) {
+            return null;
+        }
+
+        return new EmbedBuilder()
+                .setColor(Color.CYAN)
+                .setTitle(MusicResponseMessage.MUSIC_NOW_PLAYING_TITLE.get())
+                .setDescription("**[" + track.getInfo().title + "](" + track.getInfo().uri + ")**")
+                .addField(MusicResponseMessage.MUSIC_NOW_PLAYING_ARTIST.get(), track.getInfo().author, true)
+                .addField(MusicResponseMessage.MUSIC_NOW_PLAYING_DURATION.get(), formatDuration(track.getDuration()), true)
+                .build();
     }
 }

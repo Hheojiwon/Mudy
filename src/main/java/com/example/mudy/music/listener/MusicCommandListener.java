@@ -4,6 +4,7 @@ import com.example.mudy.music.command.MusicCommand;
 import com.example.mudy.music.constants.MusicResponseMessage;
 import com.example.mudy.music.service.MusicService;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -29,7 +30,8 @@ public class MusicCommandListener extends ListenerAdapter {
                 MusicCommand.STOP.getName(), this::handleStop,
                 MusicCommand.PAUSE.getName(), this::handlePause,
                 MusicCommand.RESUME.getName(), this::handleResume,
-                MusicCommand.SKIP.getName(), this::handleSkip
+                MusicCommand.SKIP.getName(), this::handleSkip,
+                MusicCommand.NOW_PLAYING.getName(), this::handleNowPlaying
         );
     }
 
@@ -82,5 +84,14 @@ public class MusicCommandListener extends ListenerAdapter {
         if (!validateAndReply(event)) return;
         musicService.skipTrack(event.getGuild());
         event.reply(MusicResponseMessage.MUSIC_SKIP.get()).queue();
+    }
+
+    private void handleNowPlaying(SlashCommandInteractionEvent event) {
+        MessageEmbed embed = musicService.getNowPlaying(event.getGuild());
+        if (embed == null) {
+            event.reply(MusicResponseMessage.MUSIC_NO_TRACK.get()).setEphemeral(true).queue();
+        } else {
+            event.replyEmbeds(embed).queue();
+        }
     }
 }
