@@ -2,8 +2,11 @@ package com.example.mudy.music.listener;
 
 import com.example.mudy.music.command.MusicCommand;
 import com.example.mudy.music.constants.MusicResponseMessage;
-import com.example.mudy.music.service.MusicService;
+import com.example.mudy.music.service.FavoriteService;
+import com.example.mudy.music.service.MusicInfoService;
+import com.example.mudy.music.service.MusicPlayService;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -15,11 +18,15 @@ import java.util.function.Consumer;
 @Component
 public class MusicCommandListener extends ListenerAdapter {
 
-    private final MusicService musicService;
+    private final MusicPlayService musicService;
+    private final FavoriteService favoriteService;
+    private final MusicInfoService musicInfoService;
     private final Map<String, Consumer<SlashCommandInteractionEvent>> commandHandlers;
 
-    public MusicCommandListener(MusicService musicService) {
+    public MusicCommandListener(MusicPlayService musicService, FavoriteService favoriteService, MusicInfoService musicInfoService) {
         this.musicService = musicService;
+        this.favoriteService = favoriteService;
+        this.musicInfoService = musicInfoService;
         this.commandHandlers = initCommandHandlers();
     }
 
@@ -29,7 +36,11 @@ public class MusicCommandListener extends ListenerAdapter {
                 MusicCommand.STOP.getName(), this::handleStop,
                 MusicCommand.PAUSE.getName(), this::handlePause,
                 MusicCommand.RESUME.getName(), this::handleResume,
-                MusicCommand.SKIP.getName(), this::handleSkip
+                MusicCommand.SKIP.getName(), this::handleSkip,
+                MusicCommand.NOW_PLAYING.getName(), this::handleNowPlaying,
+                MusicCommand.FAVORITE_ADD.getName(), this::handleFavoriteAdd,
+                MusicCommand.FAVORITE_LIST.getName(), this::handleFavoriteList,
+                MusicCommand.FAVORITE_REMOVE.getName(), this::handleFavoriteRemove
         );
     }
 
@@ -82,5 +93,32 @@ public class MusicCommandListener extends ListenerAdapter {
         if (!validateAndReply(event)) return;
         musicService.skipTrack(event.getGuild());
         event.reply(MusicResponseMessage.MUSIC_SKIP.get()).queue();
+    }
+
+    private void handleNowPlaying(SlashCommandInteractionEvent event) {
+        MessageEmbed embed = musicInfoService.getNowPlaying(event.getGuild());
+        if (embed == null) {
+            event.reply(MusicResponseMessage.MUSIC_NO_TRACK.get()).setEphemeral(true).queue();
+        } else {
+            event.replyEmbeds(embed).queue();
+        }
+    }
+
+    private void handleFavoriteAdd(SlashCommandInteractionEvent event) {
+        if (!validateAndReply(event)) return;
+        String result = favoriteService.addToFavorite(event.getGuild(), event.getUser().getId());
+        event.reply(result).setEphemeral(true).queue();
+    }
+
+    private void handleFavoriteList(SlashCommandInteractionEvent event) {
+        String userName = event.getMember().getEffectiveName();
+        MessageEmbed embed = favoriteService.getFavoriteList(event.getUser().getId(), userName);
+        event.replyEmbeds(embed).queue();
+    }
+
+    private void handleFavoriteRemove(SlashCommandInteractionEvent event) {
+        int number = event.getOption("number").getAsInt();
+        String result = favoriteService.removeFromFavorite(event.getUser().getId(), number);
+        event.reply(result).setEphemeral(true).queue();
     }
 }
