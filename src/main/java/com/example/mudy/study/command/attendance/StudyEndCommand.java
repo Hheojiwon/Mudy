@@ -24,10 +24,12 @@ public class StudyEndCommand extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         if (!event.getName().equals(StudyCommand.END.getName())) return;
 
-        Attendance attendance;
-        attendance = attendanceService.endAttendance(event.getUser().getId());
-
-        event.reply(TimeTextGenerator.generate(Duration.between(attendance.getStartTime(), attendance.getEndTime()))
-                + " 동안 스터디에 참여했습니다.").queue();
+        try {
+            Attendance attendance = attendanceService.endAttendance(event.getUser().getId());
+            event.reply(TimeTextGenerator.generate(Duration.between(attendance.getStartTime(), attendance.getEndTime()))
+                    + " 동안 스터디에 참여했습니다.").queue();
+        } catch (Exception e) {
+            event.reply("🟥 스터디가 시작되지 않았습니다.").queue();
+        }
     }
 }
