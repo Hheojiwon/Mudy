@@ -2,9 +2,11 @@ package com.example.mudy.music.listener;
 
 import com.example.mudy.music.command.MusicCommand;
 import com.example.mudy.music.constants.MusicResponseMessage;
+import com.example.mudy.music.constants.MusicTheme;
 import com.example.mudy.music.service.FavoriteService;
 import com.example.mudy.music.service.MusicInfoService;
 import com.example.mudy.music.service.MusicPlayService;
+import com.example.mudy.music.service.MusicVolumeService;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
@@ -12,6 +14,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -21,34 +24,52 @@ public class MusicCommandListener extends ListenerAdapter {
     private final MusicPlayService musicService;
     private final FavoriteService favoriteService;
     private final MusicInfoService musicInfoService;
+    private final MusicVolumeService musicVolumeService;
     private final Map<String, Consumer<SlashCommandInteractionEvent>> commandHandlers;
 
-    public MusicCommandListener(MusicPlayService musicService, FavoriteService favoriteService, MusicInfoService musicInfoService) {
+    public MusicCommandListener(MusicPlayService musicService,
+                                FavoriteService favoriteService,
+                                MusicInfoService musicInfoService,
+                                MusicVolumeService musicVolumeService) {
         this.musicService = musicService;
         this.favoriteService = favoriteService;
         this.musicInfoService = musicInfoService;
+        this.musicVolumeService = musicVolumeService;
         this.commandHandlers = initCommandHandlers();
     }
 
     private Map<String, Consumer<SlashCommandInteractionEvent>> initCommandHandlers() {
-        return Map.of(
-                MusicCommand.PLAY.getName(), this::handlePlay,
-                MusicCommand.STOP.getName(), this::handleStop,
-                MusicCommand.PAUSE.getName(), this::handlePause,
-                MusicCommand.RESUME.getName(), this::handleResume,
-                MusicCommand.SKIP.getName(), this::handleSkip,
-                MusicCommand.NOW_PLAYING.getName(), this::handleNowPlaying,
-                MusicCommand.FAVORITE_ADD.getName(), this::handleFavoriteAdd,
-                MusicCommand.FAVORITE_LIST.getName(), this::handleFavoriteList,
-                MusicCommand.FAVORITE_REMOVE.getName(), this::handleFavoriteRemove
-        );
+        Map<String, Consumer<SlashCommandInteractionEvent>> map = new HashMap<>();
+
+        map.put(MusicCommand.PLAY.getName(), this::handlePlay);
+        map.put(MusicCommand.STOP.getName(), this::handleStop);
+        map.put(MusicCommand.PAUSE.getName(), this::handlePause);
+        map.put(MusicCommand.RESUME.getName(), this::handleResume);
+        map.put(MusicCommand.SKIP.getName(), this::handleSkip);
+        map.put(MusicCommand.NOW_PLAYING.getName(), this::handleNowPlaying);
+
+        map.put(MusicCommand.FAVORITE_ADD.getName(), this::handleFavoriteAdd);
+        map.put(MusicCommand.FAVORITE_LIST.getName(), this::handleFavoriteList);
+        map.put(MusicCommand.FAVORITE_REMOVE.getName(), this::handleFavoriteRemove);
+
+        map.put(MusicCommand.VOLUME.getName(), this::handleVolume);
+        map.put(MusicCommand.FAVORITE_MOVE.getName(), this::handleFavoriteMove);
+
+        return map;
     }
 
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         Consumer<SlashCommandInteractionEvent> handler = commandHandlers.get(event.getName());
         if (handler != null) {
-            handler.accept(event);
+            try {
+                handler.accept(event);
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (!event.isAcknowledged()) {
+                    event.reply("❌ 오류가 발생했습니다.").setEphemeral(true).queue();
+                }
+            }
         }
     }
 
@@ -67,7 +88,11 @@ public class MusicCommandListener extends ListenerAdapter {
         GuildVoiceState voiceState = event.getMember().getVoiceState();
         VoiceChannel voiceChannel = voiceState.getChannel().asVoiceChannel();
 
-        musicService.playStudyPlaylist(event.getGuild(), voiceChannel);
+        String themeName = event.getOption("theme").getAsString();
+        MusicTheme selectedTheme = MusicTheme.valueOf(themeName);
+
+        musicService.playStudyPlaylist(event.getGuild(), voiceChannel, selectedTheme);
+
         event.reply(MusicResponseMessage.MUSIC_STUDY_PLAYLIST_START.get()).queue();
     }
 
@@ -119,6 +144,24 @@ public class MusicCommandListener extends ListenerAdapter {
     private void handleFavoriteRemove(SlashCommandInteractionEvent event) {
         int number = event.getOption("number").getAsInt();
         String result = favoriteService.removeFromFavorite(event.getUser().getId(), number);
+        event.reply(result).setEphemeral(true).queue();
+    }
+
+    private void handleVolume(SlashCommandInteractionEvent event) {
+        if (!validateAndReply(event)) return;
+
+        int volume = event.getOption("level").getAsInt();
+        String result = musicVolumeService.setVolume(event.getGuild(), volume);
+
+        event.reply(result).queue();
+    }
+
+    private void handleFavoriteMove(SlashCommandInteractionEvent event) {
+        int from = event.getOption("from").getAsInt();
+        int to = event.getOption("to").getAsInt();
+
+        String result = favoriteService.moveFavoriteTrack(event.getUser().getId(), from, to);
+
         event.reply(result).setEphemeral(true).queue();
     }
 }
