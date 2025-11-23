@@ -33,4 +33,18 @@ public class UserPlaylistRepository {
         }
         return false;
     }
+
+    public boolean moveTrack(String userId, int fromIndex, int toIndex) {
+        List<FavoriteTrack> playlist = userPlaylists.get(userId);
+
+        if (playlist == null ||
+                fromIndex < 0 || fromIndex >= playlist.size() ||
+                toIndex < 0 || toIndex >= playlist.size()) {
+            return false;
+        }
+        FavoriteTrack track = playlist.remove(fromIndex);
+        playlist.add(toIndex, track);
+
+        return true;
+    }
 }
