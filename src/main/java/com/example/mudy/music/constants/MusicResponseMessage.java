@@ -31,7 +31,8 @@ public enum MusicResponseMessage {
     MUSIC_FAVORITE_EMPTY("❌ 즐겨찾기 목록이 비어있습니다."),
     MUSIC_FAVORITE_LIST_TITLE("⭐ %s님의 즐겨찾기"),
     MUSIC_FAVORITE_REMOVED("🗑️ %d번 곡을 삭제했습니다."),
-    MUSIC_FAVORITE_INVALID_INDEX("❌ 잘못된 번호입니다. 목록을 다시 확인해주세요.");
+    MUSIC_FAVORITE_INVALID_INDEX("❌ 잘못된 번호입니다. 목록을 다시 확인해주세요."),
+    MUSIC_FAVORITE_MOVED("✅ 즐겨찾기 순서가 변경되었습니다: **%d번** ➡️ **%d번**");
 
     private final String message;
 

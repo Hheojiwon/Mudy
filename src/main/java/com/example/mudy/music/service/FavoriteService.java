@@ -86,6 +86,17 @@ public class FavoriteService {
         }
     }
 
+    // 즐겨찾기 순서 변경
+    public String moveFavoriteTrack(String userId, int from, int to) {
+        boolean success = userPlaylistRepository.moveTrack(userId, from - 1, to - 1);
+
+        if (success) {
+            return MusicResponseMessage.MUSIC_FAVORITE_MOVED.format(from, to);
+        } else {
+            return MusicResponseMessage.MUSIC_FAVORITE_INVALID_INDEX.get();
+        }
+    }
+
     // 시간 포맷팅 (mm:ss)
     private String formatDuration(long millis) {
         return String.format("%02d:%02d",

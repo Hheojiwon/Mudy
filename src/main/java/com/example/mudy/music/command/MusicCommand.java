@@ -9,7 +9,12 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 @Getter
 public enum MusicCommand {
 
-    PLAY("재생", "공부하기 좋은 조용한 음악을 재생합니다."),
+    PLAY("재생", "공부 음악을 재생합니다.",
+            new OptionData(OptionType.STRING, "theme", "음악 테마 선택 (케이팝/피아노/팝송)", false)
+                    .addChoice("케이팝", "K_POP")
+                    .addChoice("피아노", "PIANO")
+                    .addChoice("팝송", "POP")
+    ),
 
     STOP("정지", "음악 재생을 멈추고 큐를 비웁니다."),
 
@@ -26,7 +31,14 @@ public enum MusicCommand {
     FAVORITE_LIST("즐겨찾기목록", "내 즐겨찾기 목록을 보여줍니다."),
 
     FAVORITE_REMOVE("즐겨찾기삭제", "내 즐겨찾기에서 곡을 삭제합니다.",
-            new OptionData(OptionType.INTEGER, "number", "삭제할 곡 번호 (목록 명령어로 확인)", true));
+            new OptionData(OptionType.INTEGER, "number", "삭제할 곡 번호 (목록 명령어로 확인)", true)),
+
+    VOLUME("볼륨", "봇의 목소리 크기를 조절합니다.",
+                   new OptionData(OptionType.INTEGER, "level", "볼륨 크기 (0-100)", true)),
+
+    FAVORITE_MOVE("즐겨찾기이동", "즐겨찾기 곡의 순서를 변경합니다.",
+                          new OptionData(OptionType.INTEGER, "from", "원래 번호", true),
+            new OptionData(OptionType.INTEGER, "to", "이동할 번호", true));
 
     private final CommandData commandData;
 

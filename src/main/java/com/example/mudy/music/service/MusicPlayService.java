@@ -1,8 +1,9 @@
 package com.example.mudy.music.service;
 
-import com.example.mudy.music.constants.MusicConstants;
 import com.example.mudy.music.constants.MusicResponseMessage;
+import com.example.mudy.music.constants.MusicTheme;
 import com.example.mudy.music.manager.GuildMusicManager;
+import com.example.mudy.music.repository.GuildSettingsRepository; // ❗️ 추가
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
@@ -24,10 +25,12 @@ public class MusicPlayService {
 
     private final DefaultAudioPlayerManager playerManager;
     private final Map<Long, GuildMusicManager> musicManagers;
+    private final GuildSettingsRepository guildSettingsRepository;
 
-    public MusicPlayService() {
+    public MusicPlayService(GuildSettingsRepository guildSettingsRepository) {
         this.playerManager = new DefaultAudioPlayerManager();
         this.musicManagers = new HashMap<>();
+        this.guildSettingsRepository = guildSettingsRepository;
 
         AudioSourceManagers.registerRemoteSources(playerManager);
         AudioSourceManagers.registerLocalSource(playerManager);
@@ -40,6 +43,10 @@ public class MusicPlayService {
 
         if (musicManager == null) {
             musicManager = new GuildMusicManager(playerManager);
+
+            int savedVolume = guildSettingsRepository.getVolume(guildId);
+            musicManager.getAudioPlayer().setVolume(savedVolume);
+
             musicManagers.put(guildId, musicManager);
         }
 
@@ -47,7 +54,11 @@ public class MusicPlayService {
         return musicManager;
     }
 
-    // 음성 채널 검증
+    public void applyVolume(Guild guild, int volume) {
+        GuildMusicManager musicManager = getGuildMusicManager(guild);
+        musicManager.getAudioPlayer().setVolume(volume);
+    }
+
     public String validateVoiceState(Member member) {
         if (member == null) {
             return MusicResponseMessage.ERROR_SERVER_ONLY.get();
@@ -62,14 +73,13 @@ public class MusicPlayService {
     }
 
     // 스터디 플레이리스트 재생
-    public void playStudyPlaylist(Guild guild, VoiceChannel voiceChannel) {
+    public void playStudyPlaylist(Guild guild, VoiceChannel voiceChannel, MusicTheme theme) {
         GuildMusicManager musicManager = getGuildMusicManager(guild);
         musicManager.getScheduler().clearQueue();
         guild.getAudioManager().openAudioConnection(voiceChannel);
 
-        for (String trackUrl : MusicConstants.STUDY_PLAYLIST) {
-            loadTrack(musicManager, trackUrl);
-        }
+        String trackUrl = theme.getUrl();
+        loadTrack(musicManager, trackUrl);
     }
 
     // 트랙 로딩
